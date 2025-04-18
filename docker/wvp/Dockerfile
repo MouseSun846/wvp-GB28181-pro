@@ -1,4 +1,4 @@
-FROM ubuntu:22.04    as   build
+FROM ubuntu:20.04    as   build
 SHELL ["/bin/bash", "-c"]
 ARG gitUrl="https://gitee.com/pan648540858"
 ARG zlmGitUrl="https://gitee.com/xia-chu/ZLMediaKit"
