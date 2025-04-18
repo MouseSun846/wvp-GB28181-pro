@@ -3,12 +3,37 @@ services:
   redis:
     image: redis
     restart: always
+    network_mode: "host"
     volumes:
       - ./redis/redis.conf:/etc/redis/redis_default.conf
       - ./redis/data/:/data
     environment:
       TZ: "Asia/Shanghai"
     command: redis-server /etc/redis/redis_default.conf --appendonly yes
+ 
+  mysql:
+    image: bitnami/mysql:8.0.39
+    container_name: ragflow-mysql
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=88888888
+      - TZ=${TIMEZONE}
+      - MYSQL_DATABASE=wvp2
+      # 允许从所有网络接口连接
+      - MYSQL_EXTRA_FLAGS=--bind-address=0.0.0.0
+    ports:
+      - ${MYSQL_PORT}:3306
+    volumes:
+      - mysql_data:/bitnami/mysql/data
+      # 挂载初始化脚本目录
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    network_mode: "host"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-uroot", "-p${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    restart: on-failure    
   wvp:
     build:
       context: ./wvp
@@ -16,6 +41,7 @@ services:
         gitUrl: "https://gitee.com/pan648540858"
         zlmGitUrl: "https://gitee.com/xia-chu/ZLMediaKit"
     restart: always
+    network_mode: "host"
     ports:
       - "5060:5060"
       - "5060:5060/udp"
@@ -30,6 +56,7 @@ services:
       - ./logs/wvp:/opt/wvp/logs/
       - ./logs/assist:/opt/assist/logs/
       - ./logs/media:/opt/media/log/
+      - ./application.yml:/opt/wvp/config/application.yml
     environment:
       TZ: "Asia/Shanghai"
       # [必须修改] 本机的IP
@@ -45,5 +72,7 @@ services:
       WVP_JVM_CONFIG: -Xms128m -Xmx256m
       ASSIST_CONFIG:
       WVP_CONFIG:
+    networks:
+      - wvp      
     depends_on:
       - redis
