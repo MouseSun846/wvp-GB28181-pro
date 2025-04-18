@@ -1,11 +1,11 @@
-FROM ubuntu:20.04   as   build
-
+FROM ubuntu:22.04    as   build
+SHELL ["/bin/bash", "-c"]
 ARG gitUrl="https://gitee.com/pan648540858"
 ARG zlmGitUrl="https://gitee.com/xia-chu/ZLMediaKit"
 
 RUN export DEBIAN_FRONTEND=noninteractive &&\
         apt-get update && \
-        apt-get install -y --no-install-recommends openjdk-11-jre git maven nodejs npm build-essential \
+        apt-get install -y --no-install-recommends openjdk-11-jre git maven nodejs npm build-essential\
         cmake ca-certificates openssl ffmpeg &&\
         mkdir -p /opt/wvp/config /opt/wvp/heapdump /opt/wvp/config /opt/assist/config /opt/assist/heapdump /opt/media/www/record
 
